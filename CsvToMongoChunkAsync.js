@@ -8,7 +8,7 @@ const FILE = './people200034.csv'
 async function processRows(chunkRows) {
     return new Promise((resolve, reject) => {
 
-        Person.insertMany(chunkRows, function (err, personDocs) {
+        Person.insertMany(chunkRows,{ordered:false}, function (err, personDocs) {
             if (err) return reject(err);
             resolve(personDocs)
         });
@@ -31,6 +31,9 @@ function parseCSV(file) {
         let chunkRows = []
         let chunkCounter = 0
         let rowsCounter = 0
+        let chucksFallidos= 0
+        let rowsInserted = 0
+        let rowsFailed = 0
         let promises = []
 
         stream.pipe(parser)
@@ -49,15 +52,22 @@ function parseCSV(file) {
 
                     promises.push(
                         processRows(chunkRows).then(personDocs => {
-
+                            rowsInserted += personDocs.length
+                            rowsFailed += (chunkRows.length - personDocs.length)
                             console.log(
                                 "Chunk number: ", chunkCounter,
                                 "Chunk Length: ", chunkRows.length,
-                                "Rows Counter: ", rowsCounter)
+                                "Rows Counter: ", rowsCounter,
+                                "Rows Inserted: ", rowsInserted,
+                                "Rows Failed: ",rowsFailed)
 
                             chunkRows = []
                             parser.resume()
 
+                        })
+                        .catch(err => {
+                        chucksFallidos++
+                        console.log('ERROR al insertar registro MONGO:' + row.name + err.message)
                         })
                     )
 
@@ -73,10 +83,14 @@ function parseCSV(file) {
                     promises.push(
                         processRows(chunkRows).then(personDocs => {
 
+                            rowsInserted += personDocs.length
+                            rowsFailed += (chunkRows.length - personDocs.length)
                             console.log(
                                 "Chunk number: ", chunkCounter,
                                 "Chunk Length: ", chunkRows.length,
-                                "Rows Counter: ", rowsCounter)
+                                "Rows Counter: ", rowsCounter,
+                                "Rows Inserted: ", rowsInserted,
+                                "Rows Failed: ",rowsFailed)
 
                             chunkRows = []
 
