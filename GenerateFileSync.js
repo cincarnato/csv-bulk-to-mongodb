@@ -1,7 +1,7 @@
 const randomString = require("./helpers/randomString");
 const randomNumber = require("./helpers/randomNumber");
 const fs = require('fs')
-const CSV_FILE = "people100.csv"
+const CSV_FILE = "people200034.csv"
 function generateFileSync(rows) {
     console.time("sincrono")
 
@@ -20,4 +20,4 @@ function generateFileSync(rows) {
 }
 
 
-generateFileSync(100)
+generateFileSync(200034)
